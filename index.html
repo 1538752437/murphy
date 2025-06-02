@@ -312,6 +312,7 @@
       let cart = JSON.parse(localStorage.getItem('cart')) || [];
       let currentCategory = null;
       let currentOrderId = localStorage.getItem('currentOrderId') || null;
+      console.log('Initial currentOrderId from localStorage:', currentOrderId);
 
       async function loadProducts(category = null) {
         const hotProductsSection = document.querySelector('#hot-product .row');
@@ -512,8 +513,7 @@
                 const orderRef = await push(ref(db, 'orders'), orderData);
                 currentOrderId = orderRef.key;
                 localStorage.setItem('currentOrderId', currentOrderId);
-                console.log('Order submitted successfully, currentOrderId:', currentOrderId);
-                console.log('Initial order data:', orderData);
+                console.log('Saved currentOrderId to localStorage:', currentOrderId);
 
                 const orderSnapshot = await get(ref(db, `orders/${currentOrderId}`));
                 if (orderSnapshot.exists()) {
@@ -562,7 +562,9 @@
       document.addEventListener('DOMContentLoaded', () => {
         loadProducts();
         updateCartDisplay();
+        console.log('Checking for saved order...');
         if (currentOrderId) {
+          console.log('Found currentOrderId:', currentOrderId);
           const orderStatusRef = ref(db, `orders/${currentOrderId}`);
           onValue(orderStatusRef, (snapshot) => {
             if (snapshot.exists()) {
@@ -571,12 +573,16 @@
               displayMyOrder(currentOrderId, orderData);
             } else {
               console.log('No order found for currentOrderId:', currentOrderId);
+              document.querySelector('#my-order').innerHTML = '<li class="list-group-item">未找到订单，可能已被删除或权限不足。</li>';
               localStorage.removeItem('currentOrderId');
             }
           }, (error) => {
             console.error('Error restoring order:', error.message);
             document.querySelector('#my-order').innerHTML = '<li class="list-group-item">订单加载失败：' + error.message + '，请检查权限或联系管理员。</li>';
+            localStorage.removeItem('currentOrderId');
           });
+        } else {
+          console.log('No currentOrderId found in localStorage');
         }
       });
     } catch (error) {
