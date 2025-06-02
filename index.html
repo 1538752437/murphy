@@ -309,9 +309,9 @@
       const app = initializeApp(firebaseConfig);
       const db = getDatabase(app);
 
-      let cart = [];
+      let cart = JSON.parse(localStorage.getItem('cart')) || [];
       let currentCategory = null;
-      let currentOrderId = null;
+      let currentOrderId = localStorage.getItem('currentOrderId') || null;
 
       async function loadProducts(category = null) {
         const hotProductsSection = document.querySelector('#hot-product .row');
@@ -389,6 +389,7 @@
             } else {
               cart.push({ id, name: product.name, price: product.price, quantity: 1 });
             }
+            localStorage.setItem('cart', JSON.stringify(cart));
             updateCartDisplay();
             alert(`${product.name} 已添加到购物车！`);
           }
@@ -416,6 +417,7 @@
 
       window.removeFromCart = function(id) {
         cart = cart.filter(item => item.id !== id);
+        localStorage.setItem('cart', JSON.stringify(cart));
         updateCartDisplay();
       };
 
@@ -441,7 +443,7 @@
             状态: ${orderData.status || '未知'}
           </li>
         `;
-        myOrderSection.style.display = 'block'; // 确保 section 可见
+        myOrderSection.style.display = 'block';
       }
 
       const checkoutButton = document.querySelector('#checkout-button');
@@ -509,6 +511,7 @@
                 };
                 const orderRef = await push(ref(db, 'orders'), orderData);
                 currentOrderId = orderRef.key;
+                localStorage.setItem('currentOrderId', currentOrderId);
                 console.log('Order submitted successfully, currentOrderId:', currentOrderId);
                 console.log('Initial order data:', orderData);
 
@@ -539,6 +542,7 @@
                 });
 
                 cart = [];
+                localStorage.setItem('cart', JSON.stringify(cart));
                 updateCartDisplay();
                 document.getElementById('my-order-section').scrollIntoView({ behavior: 'smooth' });
                 modalInstance.hide();
@@ -554,8 +558,26 @@
         });
       }
 
+      // 页面加载时恢复订单
       document.addEventListener('DOMContentLoaded', () => {
         loadProducts();
+        updateCartDisplay();
+        if (currentOrderId) {
+          const orderStatusRef = ref(db, `orders/${currentOrderId}`);
+          onValue(orderStatusRef, (snapshot) => {
+            if (snapshot.exists()) {
+              const orderData = snapshot.val();
+              console.log('Restoring order data:', orderData);
+              displayMyOrder(currentOrderId, orderData);
+            } else {
+              console.log('No order found for currentOrderId:', currentOrderId);
+              localStorage.removeItem('currentOrderId');
+            }
+          }, (error) => {
+            console.error('Error restoring order:', error.message);
+            document.querySelector('#my-order').innerHTML = '<li class="list-group-item">订单加载失败：' + error.message + '，请检查权限或联系管理员。</li>';
+          });
+        }
       });
     } catch (error) {
       console.error('Firebase initialization failed:', error);
