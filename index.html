@@ -1,43 +1,4 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -144,7 +105,7 @@
       font-size: 0.9rem; 
       color: #b89b6f; 
     }
-    .category-section, .product-section, .cart-section { 
+    .category-section, .product-section, .cart-section, .my-order-section { 
       padding: 40px 0; 
       background-color: #2c2c2c; 
       border-radius: 15px; 
@@ -245,7 +206,7 @@
         font-size: 1rem; 
         padding: 8px 10px !important; 
       }
-      .category-section, .product-section, .cart-section { 
+      .category-section, .product-section, .cart-section, .my-order-section { 
         padding: 25px 0; 
         margin: 15px 0; 
       }
@@ -271,10 +232,10 @@
       .list-group-item { 
         font-size: 0.9rem; 
       }
-      .cart-section { 
+      .cart-section, .my-order-section { 
         position: relative; 
       }
-      #cart-items { 
+      #cart-items, #my-order { 
         max-height: 300px; 
         overflow-y: auto; 
       }
@@ -295,7 +256,7 @@
   </style>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, onValue, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getDatabase, ref, onValue, push, update, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAKaVwadaKpdjtYPN1qWIvh6Rkben-Y5KQ",
@@ -314,26 +275,35 @@
 
       let cart = [];
       let currentCategory = null;
+      let currentOrderId = null; // 存储当前订单 ID
 
       async function loadProducts(category = null) {
         const hotProductsSection = document.querySelector('#hot-product .row');
-        if (!hotProductsSection) return;
+        if (!hotProductsSection) {
+          console.error('Hot products section not found in DOM');
+          return;
+        }
         hotProductsSection.innerHTML = '<p class="loading">加载中...</p>';
 
         try {
           const productsRef = ref(db, 'products');
+          console.log('Attempting to load products from:', productsRef.toString()); // 调试日志
+
           onValue(productsRef, (snapshot) => {
             hotProductsSection.innerHTML = '';
             if (!snapshot.exists()) {
-              hotProductsSection.innerHTML = '<p class="loading">暂无商品。</p>';
+              console.log('No products found in database');
+              hotProductsSection.innerHTML = '<p class="loading">暂无商品，请联系管理员添加商品。</p>';
               return;
             }
+
             let hasProducts = false;
             let delay = 0;
             snapshot.forEach((childSnapshot) => {
               const product = childSnapshot.val();
               const productId = childSnapshot.key;
               if (category && product.category !== category) return;
+
               hasProducts = true;
               const card = document.createElement('div');
               card.className = 'col-md-3';
@@ -351,15 +321,18 @@
               hotProductsSection.appendChild(card);
               delay++;
             });
+
             if (!hasProducts) {
+              console.log('No products found for category:', category || 'All');
               hotProductsSection.innerHTML = '<p class="loading">此分类暂无商品。</p>';
             }
           }, (error) => {
-            console.error('Error loading products:', error.message);
-            hotProductsSection.innerHTML = '<p class="loading">加载商品失败，请稍后重试。</p>';
+            console.error('Error loading products:', error.message, error.code);
+            hotProductsSection.innerHTML = `<p class="loading">加载商品失败：${error.message} (${error.code})，请检查权限或联系管理员。</p>`;
           });
         } catch (error) {
           console.error('Error in loadProducts:', error.message);
+          hotProductsSection.innerHTML = `<p class="loading">加载商品失败：${error.message}，请检查网络或配置。</p>`;
         }
       }
 
@@ -383,7 +356,10 @@
             updateCartDisplay();
             alert(`${product.name} 已添加到购物车！`);
           }
-        }, { onlyOnce: true });
+        }, { onlyOnce: true }, (error) => {
+          console.error('Error adding to cart:', error.message);
+          alert('添加商品失败：' + error.message);
+        });
       };
 
       function updateCartDisplay() {
@@ -407,6 +383,29 @@
         updateCartDisplay();
       };
 
+      function displayMyOrder(orderId, orderData) {
+        const myOrderDisplay = document.querySelector('#my-order');
+        if (!myOrderDisplay) {
+          console.error('My order display element not found!');
+          return;
+        }
+        console.log('Displaying order:', orderId, orderData); // 调试日志
+        myOrderDisplay.innerHTML = '';
+        const itemsList = Array.isArray(orderData.items) 
+          ? orderData.items.map(item => `${item.name} x ${item.quantity}`).join(', ')
+          : '未知商品';
+        myOrderDisplay.innerHTML = `
+          <li class="list-group-item">
+            取餐号: ${orderData.orderNumber || orderId}<br>
+            客户姓名: ${orderData.customerName || '未知客户'}<br>
+            电话号码: ${orderData.customerPhone || '无电话'}<br>
+            商品: ${itemsList}<br>
+            总金额: ￥${orderData.total || 0}<br>
+            状态: ${orderData.status || '未知'}
+          </li>
+        `;
+      }
+
       const checkoutButton = document.querySelector('#checkout-button');
       if (checkoutButton) {
         checkoutButton.addEventListener('click', async () => {
@@ -421,18 +420,55 @@
             return;
           }
           try {
-            await push(ref(db, 'orders'), {
-              customerName, customerPhone, items: cart,
+            const orderData = {
+              customerName, 
+              customerPhone, 
+              items: cart,
               total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
               createdAt: new Date().toISOString(),
-              status: 'pending'
+              status: 'pending',
+              orderNumber: `ORDER_${Date.now()}` // 生成取餐号
+            };
+            const orderRef = await push(ref(db, 'orders'), orderData);
+            currentOrderId = orderRef.key;
+            console.log('Order submitted successfully, currentOrderId:', currentOrderId); // 调试日志
+            console.log('Initial order data:', orderData); // 调试日志
+
+            // 验证订单是否写入成功
+            const orderSnapshot = await get(ref(db, `orders/${currentOrderId}`));
+            if (orderSnapshot.exists()) {
+              console.log('Order verified in database:', orderSnapshot.val());
+            } else {
+              console.error('Order not found in database after writing!');
+              throw new Error('订单写入失败，请检查数据库权限。');
+            }
+
+            await update(ref(db, `orders/${currentOrderId}`), { orderNumber: currentOrderId });
+            alert(`订单提交成功！您的取餐号是：${currentOrderId}`);
+
+            // 实时监听订单状态
+            const orderStatusRef = ref(db, `orders/${currentOrderId}`);
+            onValue(orderStatusRef, (snapshot) => {
+              if (snapshot.exists()) {
+                const orderData = snapshot.val();
+                console.log('Order data updated:', orderData); // 调试日志
+                displayMyOrder(currentOrderId, orderData);
+              } else {
+                console.error('Order not found for ID:', currentOrderId);
+                document.querySelector('#my-order').innerHTML = '<li class="list-group-item">订单加载失败，请检查权限或联系管理员。</li>';
+              }
+            }, (error) => {
+              console.error('Error listening to order updates:', error.message);
+              document.querySelector('#my-order').innerHTML = '<li class="list-group-item">订单加载失败：' + error.message + '，请检查权限或联系管理员。</li>';
             });
-            alert('订单提交成功！');
+
             cart = [];
             updateCartDisplay();
+            document.getElementById('my-order-section').scrollIntoView({ behavior: 'smooth' });
           } catch (error) {
             console.error('Error submitting order:', error.message);
             alert('订单提交失败：' + error.message);
+            document.querySelector('#my-order').innerHTML = '<li class="list-group-item">订单提交失败：' + error.message + '</li>';
           }
         });
       }
@@ -458,6 +494,7 @@
           <li class="nav-item"><a class="nav-link" href="#home">首页</a></li>
           <li class="nav-item"><a class="nav-link" href="#menu">菜单</a></li>
           <li class="nav-item"><a class="nav-link" href="#cart">购物车</a></li>
+          <li class="nav-item"><a class="nav-link" href="#my-order-section">我的订单</a></li>
           <li class="nav-item"><a class="nav-link" href="#about">关于我们</a></li>
           <li class="nav-item"><a class="nav-link" href="#contact">联系我们</a></li>
           <li class="nav-item"><a class="nav-link" href="/admin/">管理员登录</a></li>
@@ -532,6 +569,15 @@
       <ul id="cart-items" class="list-group mb-3"></ul>
       <p id="cart-total" class="text-center">总计: ￥0</p>
       <div class="text-center"><button id="checkout-button" class="btn btn-success">提交订单</button></div>
+    </div>
+  </section>
+
+  <section id="my-order-section" class="my-order-section">
+    <div class="container">
+      <h2>我的订单</h2>
+      <ul id="my-order" class="list-group mb-3">
+        <li class="list-group-item">请提交订单以查看取餐号和订单状态。</li>
+      </ul>
     </div>
   </section>
 
