@@ -14,24 +14,26 @@
       position: relative; 
       overflow-x: hidden; 
       min-height: 100vh; 
+      margin: 0;
+      padding: 0;
     }
     .navbar { 
       background: linear-gradient(135deg, #1a1a1a 0%, #d4a373 100%); 
-      padding: 15px; 
+      padding: 10px; 
       box-shadow: 0 4px 12px rgba(0,0,0,0.3); 
     }
     .navbar-brand, .nav-link { 
       color: #e0c097 !important; 
       font-family: 'Playfair Display', serif; 
-      font-size: 1.2rem; 
+      font-size: 1.1rem; 
       transition: color 0.3s ease; 
     }
     .navbar-brand { 
-      font-size: 1.8rem; 
+      font-size: 1.5rem; 
       font-weight: 700; 
     }
     .nav-link { 
-      padding: 10px 15px !important; 
+      padding: 8px 12px !important; 
     }
     .nav-link:hover { 
       color: #d4a373 !important; 
@@ -39,7 +41,7 @@
     .hero { 
       background: url('https://images.pexels.com/photos/1695052/pexels-photo-1695052.jpeg?auto=compress&cs=tinysrgb&w=1200') no-repeat center; 
       background-size: cover; 
-      padding: 100px 0; 
+      padding: 80px 0; 
       color: #e0c097; 
       text-align: center; 
       position: relative; 
@@ -61,13 +63,13 @@
     }
     .hero h1 { 
       font-family: 'Playfair Display', serif; 
-      font-size: 2.5rem; 
+      font-size: 2rem; 
       font-weight: 700; 
-      margin-bottom: 15px; 
+      margin-bottom: 10px; 
       color: #d4a373; 
     }
     .hero p { 
-      font-size: 1.1rem; 
+      font-size: 1rem; 
       font-weight: 300; 
     }
     .card { 
@@ -77,7 +79,7 @@
       box-shadow: 0 6px 20px rgba(212,163,115,0.1); 
       transition: transform 0.3s ease, box-shadow 0.3s ease; 
       cursor: pointer; 
-      margin-bottom: 20px; 
+      margin-bottom: 15px; 
       opacity: 0; 
       animation: fadeIn 0.5s ease forwards; 
       animation-delay: calc(var(--delay) * 0.2s); 
@@ -88,35 +90,35 @@
     }
     .card-img-top { 
       border-radius: 15px 15px 0 0; 
-      height: 180px; 
+      height: 150px; 
       width: 100%; 
       object-fit: cover; 
     }
     .card-body { 
-      padding: 15px; 
+      padding: 10px; 
       text-align: center; 
     }
     .card-title { 
       font-family: 'Playfair Display', serif; 
-      font-size: 1.2rem; 
+      font-size: 1.1rem; 
       color: #d4a373; 
     }
     .card-text { 
-      font-size: 0.9rem; 
+      font-size: 0.85rem; 
       color: #b89b6f; 
     }
     .category-section, .product-section, .cart-section, .my-order-section { 
-      padding: 40px 0; 
+      padding: 30px 0; 
       background-color: #2c2c2c; 
       border-radius: 15px; 
-      margin: 20px 0; 
+      margin: 15px 0; 
       box-shadow: 0 4px 12px rgba(0,0,0,0.3); 
     }
     .btn { 
       touch-action: manipulation; 
       -webkit-tap-highlight-color: transparent; 
-      padding: 10px 20px; 
-      font-size: 1rem; 
+      padding: 8px 16px; 
+      font-size: 0.9rem; 
       border-radius: 25px; 
       transition: transform 0.2s ease, background 0.3s ease; 
     }
@@ -147,33 +149,34 @@
     .footer { 
       background: linear-gradient(135deg, #1a1a1a 0%, #d4a373 100%); 
       color: #e0c097; 
-      padding: 20px 0; 
+      padding: 15px 0; 
       text-align: center; 
-      margin-top: 30px; 
-      font-size: 0.9rem; 
+      margin-top: 20px; 
+      font-size: 0.8rem; 
     }
     .loading { 
       text-align: center; 
       color: #d4a373; 
       font-style: italic; 
-      padding: 20px; 
+      padding: 15px; 
       position: relative; 
     }
     .loading::after { 
       content: ''; 
       display: inline-block; 
-      width: 24px; 
-      height: 24px; 
+      width: 20px; 
+      height: 20px; 
       border: 3px solid #d4a373; 
       border-radius: 50%; 
       border-top-color: transparent; 
       animation: spin 1s ease-in-out infinite; 
-      margin-left: 10px; 
+      margin-left: 8px; 
     }
     .list-group-item { 
       background-color: #333333; 
       color: #e0c097; 
       border-color: rgba(212,163,115,0.2); 
+      font-size: 0.9rem; 
     }
     @keyframes spin {
       to { transform: rotate(360deg); }
@@ -185,73 +188,108 @@
     h2 { 
       font-family: 'Playfair Display', serif; 
       color: #d4a373; 
-      font-size: 2rem; 
+      font-size: 1.8rem; 
       font-weight: 700; 
-      margin-bottom: 20px; 
+      margin-bottom: 15px; 
     }
+    /* 手机端优化 */
     @media (max-width: 768px) {
       .hero { 
-        padding: 60px 0; 
+        padding: 50px 0; 
       }
       .hero h1 { 
-        font-size: 1.8rem; 
-      }
-      .hero p { 
-        font-size: 0.95rem; 
-      }
-      .navbar-brand { 
-        font-size: 1.3rem; 
-      }
-      .nav-link { 
-        font-size: 1rem; 
-        padding: 8px 10px !important; 
-      }
-      .category-section, .product-section, .cart-section, .my-order-section { 
-        padding: 25px 0; 
-        margin: 15px 0; 
-      }
-      .card-img-top { 
-        height: 150px; 
-      }
-      .card-body { 
-        padding: 12px; 
-      }
-      .card-title { 
-        font-size: 1.1rem; 
-      }
-      .card-text { 
-        font-size: 0.85rem; 
-      }
-      .btn { 
-        font-size: 0.9rem; 
-        padding: 8px 15px; 
-      }
-      h2 { 
         font-size: 1.5rem; 
       }
-      .list-group-item { 
+      .hero p { 
         font-size: 0.9rem; 
       }
-      .cart-section, .my-order-section { 
-        position: relative; 
+      .navbar-brand { 
+        font-size: 1.2rem; 
+      }
+      .nav-link { 
+        font-size: 0.9rem; 
+        padding: 6px 8px !important; 
+      }
+      .category-section, .product-section, .cart-section, .my-order-section { 
+        padding: 20px 0; 
+        margin: 10px 0; 
+      }
+      .card-img-top { 
+        height: 120px; 
+      }
+      .card-body { 
+        padding: 8px; 
+      }
+      .card-title { 
+        font-size: 1rem; 
+      }
+      .card-text { 
+        font-size: 0.8rem; 
+      }
+      .btn { 
+        font-size: 0.85rem; 
+        padding: 6px 12px; 
+      }
+      h2 { 
+        font-size: 1.3rem; 
+      }
+      .list-group-item { 
+        font-size: 0.85rem; 
       }
       #cart-items, #my-order { 
-        max-height: 300px; 
+        max-height: 250px; 
         overflow-y: auto; 
+      }
+      .container {
+        padding-left: 10px;
+        padding-right: 10px;
       }
     }
     @media (max-width: 576px) {
+      .col-md-3 { 
+        flex: 0 0 50%; 
+        max-width: 50%; 
+      }
+      .card-img-top { 
+        height: 100px; 
+      }
+      .btn-sm { 
+        font-size: 0.8rem; 
+        padding: 5px 10px; 
+      }
+    }
+    @media (max-width: 400px) {
       .col-md-3 { 
         flex: 0 0 100%; 
         max-width: 100%; 
       }
       .card-img-top { 
-        height: 200px; 
+        height: 150px; 
       }
-      .btn-sm { 
-        font-size: 0.85rem; 
-        padding: 6px 12px; 
-      }
+    }
+    /* 表单弹窗样式 */
+    .modal-content {
+      background-color: #333333;
+      color: #e0c097;
+      border: 1px solid rgba(212,163,115,0.2);
+    }
+    .modal-header, .modal-footer {
+      border-color: rgba(212,163,115,0.2);
+    }
+    .modal-title {
+      font-family: 'Playfair Display', serif;
+      color: #d4a373;
+    }
+    .form-control {
+      background-color: #444444;
+      color: #e0c097;
+      border: 1px solid rgba(212,163,115,0.2);
+    }
+    .form-control:focus {
+      background-color: #444444;
+      color: #e0c097;
+      border-color: #d4a373;
+      box-shadow: 0 0 5px rgba(212,163,115,0.3);
     }
   </style>
   <script type="module">
@@ -275,7 +313,7 @@
 
       let cart = [];
       let currentCategory = null;
-      let currentOrderId = null; // 存储当前订单 ID
+      let currentOrderId = null;
 
       async function loadProducts(category = null) {
         const hotProductsSection = document.querySelector('#hot-product .row');
@@ -287,7 +325,7 @@
 
         try {
           const productsRef = ref(db, 'products');
-          console.log('Attempting to load products from:', productsRef.toString()); // 调试日志
+          console.log('Attempting to load products from:', productsRef.toString());
 
           onValue(productsRef, (snapshot) => {
             hotProductsSection.innerHTML = '';
@@ -389,7 +427,7 @@
           console.error('My order display element not found!');
           return;
         }
-        console.log('Displaying order:', orderId, orderData); // 调试日志
+        console.log('Displaying order:', orderId, orderData);
         myOrderDisplay.innerHTML = '';
         const itemsList = Array.isArray(orderData.items) 
           ? orderData.items.map(item => `${item.name} x ${item.quantity}`).join(', ')
@@ -408,68 +446,107 @@
 
       const checkoutButton = document.querySelector('#checkout-button');
       if (checkoutButton) {
-        checkoutButton.addEventListener('click', async () => {
+        checkoutButton.addEventListener('click', () => {
           if (cart.length === 0) {
             alert('购物车为空，请先添加商品！');
             return;
           }
-          const customerName = prompt('请输入你的姓名：');
-          const customerPhone = prompt('请输入你的电话号码：');
-          if (!customerName || !customerPhone) {
-            alert('请填写姓名和电话号码！');
-            return;
-          }
-          try {
-            const orderData = {
-              customerName, 
-              customerPhone, 
-              items: cart,
-              total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
-              createdAt: new Date().toISOString(),
-              status: 'pending',
-              orderNumber: `ORDER_${Date.now()}` // 生成取餐号
-            };
-            const orderRef = await push(ref(db, 'orders'), orderData);
-            currentOrderId = orderRef.key;
-            console.log('Order submitted successfully, currentOrderId:', currentOrderId); // 调试日志
-            console.log('Initial order data:', orderData); // 调试日志
 
-            // 验证订单是否写入成功
-            const orderSnapshot = await get(ref(db, `orders/${currentOrderId}`));
-            if (orderSnapshot.exists()) {
-              console.log('Order verified in database:', orderSnapshot.val());
-            } else {
-              console.error('Order not found in database after writing!');
-              throw new Error('订单写入失败，请检查数据库权限。');
+          // 显示表单弹窗
+          const modal = document.createElement('div');
+          modal.innerHTML = `
+            <div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="checkoutModalLabel">填写订单信息</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <form id="checkoutForm">
+                      <div class="mb-3">
+                        <label for="customerName" class="form-label">姓名</label>
+                        <input type="text" class="form-control" id="customerName" required>
+                      </div>
+                      <div class="mb-3">
+                        <label for="customerPhone" class="form-label">电话号码</label>
+                        <input type="tel" class="form-control" id="customerPhone" required>
+                      </div>
+                    </form>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-success" id="submitOrder">提交订单</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+          document.body.appendChild(modal);
+
+          const modalInstance = new bootstrap.Modal(document.getElementById('checkoutModal'));
+          modalInstance.show();
+
+          document.getElementById('submitOrder').addEventListener('click', async () => {
+            const customerName = document.getElementById('customerName').value.trim();
+            const customerPhone = document.getElementById('customerPhone').value.trim();
+
+            if (!customerName || !customerPhone) {
+              alert('请填写姓名和电话号码！');
+              return;
             }
 
-            await update(ref(db, `orders/${currentOrderId}`), { orderNumber: currentOrderId });
-            alert(`订单提交成功！您的取餐号是：${currentOrderId}`);
+            try {
+              const orderData = {
+                customerName, 
+                customerPhone, 
+                items: cart,
+                total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
+                createdAt: new Date().toISOString(),
+                status: 'pending',
+                orderNumber: `ORDER_${Date.now()}`
+              };
+              const orderRef = await push(ref(db, 'orders'), orderData);
+              currentOrderId = orderRef.key;
+              console.log('Order submitted successfully, currentOrderId:', currentOrderId);
+              console.log('Initial order data:', orderData);
 
-            // 实时监听订单状态
-            const orderStatusRef = ref(db, `orders/${currentOrderId}`);
-            onValue(orderStatusRef, (snapshot) => {
-              if (snapshot.exists()) {
-                const orderData = snapshot.val();
-                console.log('Order data updated:', orderData); // 调试日志
-                displayMyOrder(currentOrderId, orderData);
+              const orderSnapshot = await get(ref(db, `orders/${currentOrderId}`));
+              if (orderSnapshot.exists()) {
+                console.log('Order verified in database:', orderSnapshot.val());
               } else {
-                console.error('Order not found for ID:', currentOrderId);
-                document.querySelector('#my-order').innerHTML = '<li class="list-group-item">订单加载失败，请检查权限或联系管理员。</li>';
+                console.error('Order not found in database after writing!');
+                throw new Error('订单写入失败，请检查数据库权限。');
               }
-            }, (error) => {
-              console.error('Error listening to order updates:', error.message);
-              document.querySelector('#my-order').innerHTML = '<li class="list-group-item">订单加载失败：' + error.message + '，请检查权限或联系管理员。</li>';
-            });
 
-            cart = [];
-            updateCartDisplay();
-            document.getElementById('my-order-section').scrollIntoView({ behavior: 'smooth' });
-          } catch (error) {
-            console.error('Error submitting order:', error.message);
-            alert('订单提交失败：' + error.message);
-            document.querySelector('#my-order').innerHTML = '<li class="list-group-item">订单提交失败：' + error.message + '</li>';
-          }
+              await update(ref(db, `orders/${currentOrderId}`), { orderNumber: currentOrderId });
+              alert(`订单提交成功！您的取餐号是：${currentOrderId}`);
+
+              const orderStatusRef = ref(db, `orders/${currentOrderId}`);
+              onValue(orderStatusRef, (snapshot) => {
+                if (snapshot.exists()) {
+                  const orderData = snapshot.val();
+                  console.log('Order data updated:', orderData);
+                  displayMyOrder(currentOrderId, orderData);
+                } else {
+                  console.error('Order not found for ID:', currentOrderId);
+                  document.querySelector('#my-order').innerHTML = '<li class="list-group-item">订单加载失败，请检查权限或联系管理员。</li>';
+                }
+              }, (error) => {
+                console.error('Error listening to order updates:', error.message);
+                document.querySelector('#my-order').innerHTML = '<li class="list-group-item">订单加载失败：' + error.message + '，请检查权限或联系管理员。</li>';
+              });
+
+              cart = [];
+              updateCartDisplay();
+              document.getElementById('my-order-section').scrollIntoView({ behavior: 'smooth' });
+              modalInstance.hide();
+            } catch (error) {
+              console.error('Error submitting order:', error.message);
+              alert('订单提交失败：' + error.message);
+              document.querySelector('#my-order').innerHTML = '<li class="list-group-item">订单提交失败：' + error.message + '</li>';
+            }
+          });
         });
       }
 
@@ -486,7 +563,7 @@
   <nav class="navbar navbar-expand-lg navbar-light">
     <div class="container">
       <a class="navbar-brand" href="/">Muphy Coffee</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Close">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
