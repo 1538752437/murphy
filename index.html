@@ -192,7 +192,6 @@
       font-weight: 700; 
       margin-bottom: 15px; 
     }
-    /* 手机端优化 */
     @media (max-width: 768px) {
       .hero { 
         padding: 50px 0; 
@@ -267,7 +266,6 @@
         height: 150px; 
       }
     }
-    /* 表单弹窗样式 */
     .modal-content {
       background-color: #333333;
       color: #e0c097;
@@ -422,9 +420,10 @@
       };
 
       function displayMyOrder(orderId, orderData) {
+        const myOrderSection = document.querySelector('#my-order-section');
         const myOrderDisplay = document.querySelector('#my-order');
-        if (!myOrderDisplay) {
-          console.error('My order display element not found!');
+        if (!myOrderSection || !myOrderDisplay) {
+          console.error('My order section or display element not found!');
           return;
         }
         console.log('Displaying order:', orderId, orderData);
@@ -442,6 +441,7 @@
             状态: ${orderData.status || '未知'}
           </li>
         `;
+        myOrderSection.style.display = 'block'; // 确保 section 可见
       }
 
       const checkoutButton = document.querySelector('#checkout-button');
@@ -452,7 +452,6 @@
             return;
           }
 
-          // 显示表单弹窗
           const modal = document.createElement('div');
           modal.innerHTML = `
             <div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">
@@ -487,66 +486,71 @@
           const modalInstance = new bootstrap.Modal(document.getElementById('checkoutModal'));
           modalInstance.show();
 
-          document.getElementById('submitOrder').addEventListener('click', async () => {
-            const customerName = document.getElementById('customerName').value.trim();
-            const customerPhone = document.getElementById('customerPhone').value.trim();
+          const submitOrderButton = document.getElementById('submitOrder');
+          if (submitOrderButton) {
+            submitOrderButton.addEventListener('click', async () => {
+              const customerName = document.getElementById('customerName').value.trim();
+              const customerPhone = document.getElementById('customerPhone').value.trim();
 
-            if (!customerName || !customerPhone) {
-              alert('请填写姓名和电话号码！');
-              return;
-            }
-
-            try {
-              const orderData = {
-                customerName, 
-                customerPhone, 
-                items: cart,
-                total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
-                createdAt: new Date().toISOString(),
-                status: 'pending',
-                orderNumber: `ORDER_${Date.now()}`
-              };
-              const orderRef = await push(ref(db, 'orders'), orderData);
-              currentOrderId = orderRef.key;
-              console.log('Order submitted successfully, currentOrderId:', currentOrderId);
-              console.log('Initial order data:', orderData);
-
-              const orderSnapshot = await get(ref(db, `orders/${currentOrderId}`));
-              if (orderSnapshot.exists()) {
-                console.log('Order verified in database:', orderSnapshot.val());
-              } else {
-                console.error('Order not found in database after writing!');
-                throw new Error('订单写入失败，请检查数据库权限。');
+              if (!customerName || !customerPhone) {
+                alert('请填写姓名和电话号码！');
+                return;
               }
 
-              await update(ref(db, `orders/${currentOrderId}`), { orderNumber: currentOrderId });
-              alert(`订单提交成功！您的取餐号是：${currentOrderId}`);
+              try {
+                const orderData = {
+                  customerName, 
+                  customerPhone, 
+                  items: cart,
+                  total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
+                  createdAt: new Date().toISOString(),
+                  status: 'pending',
+                  orderNumber: `ORDER_${Date.now()}`
+                };
+                const orderRef = await push(ref(db, 'orders'), orderData);
+                currentOrderId = orderRef.key;
+                console.log('Order submitted successfully, currentOrderId:', currentOrderId);
+                console.log('Initial order data:', orderData);
 
-              const orderStatusRef = ref(db, `orders/${currentOrderId}`);
-              onValue(orderStatusRef, (snapshot) => {
-                if (snapshot.exists()) {
-                  const orderData = snapshot.val();
-                  console.log('Order data updated:', orderData);
-                  displayMyOrder(currentOrderId, orderData);
+                const orderSnapshot = await get(ref(db, `orders/${currentOrderId}`));
+                if (orderSnapshot.exists()) {
+                  console.log('Order verified in database:', orderSnapshot.val());
                 } else {
-                  console.error('Order not found for ID:', currentOrderId);
-                  document.querySelector('#my-order').innerHTML = '<li class="list-group-item">订单加载失败，请检查权限或联系管理员。</li>';
+                  console.error('Order not found in database after writing!');
+                  throw new Error('订单写入失败，请检查数据库权限。');
                 }
-              }, (error) => {
-                console.error('Error listening to order updates:', error.message);
-                document.querySelector('#my-order').innerHTML = '<li class="list-group-item">订单加载失败：' + error.message + '，请检查权限或联系管理员。</li>';
-              });
 
-              cart = [];
-              updateCartDisplay();
-              document.getElementById('my-order-section').scrollIntoView({ behavior: 'smooth' });
-              modalInstance.hide();
-            } catch (error) {
-              console.error('Error submitting order:', error.message);
-              alert('订单提交失败：' + error.message);
-              document.querySelector('#my-order').innerHTML = '<li class="list-group-item">订单提交失败：' + error.message + '</li>';
-            }
-          });
+                await update(ref(db, `orders/${currentOrderId}`), { orderNumber: currentOrderId });
+                alert(`订单提交成功！您的取餐号是：${currentOrderId}`);
+
+                const orderStatusRef = ref(db, `orders/${currentOrderId}`);
+                onValue(orderStatusRef, (snapshot) => {
+                  if (snapshot.exists()) {
+                    const orderData = snapshot.val();
+                    console.log('Order data updated:', orderData);
+                    displayMyOrder(currentOrderId, orderData);
+                  } else {
+                    console.error('Order not found for ID:', currentOrderId);
+                    document.querySelector('#my-order').innerHTML = '<li class="list-group-item">订单加载失败，请检查权限或联系管理员。</li>';
+                  }
+                }, (error) => {
+                  console.error('Error listening to order updates:', error.message);
+                  document.querySelector('#my-order').innerHTML = '<li class="list-group-item">订单加载失败：' + error.message + '，请检查权限或联系管理员。</li>';
+                });
+
+                cart = [];
+                updateCartDisplay();
+                document.getElementById('my-order-section').scrollIntoView({ behavior: 'smooth' });
+                modalInstance.hide();
+              } catch (error) {
+                console.error('Error submitting order:', error.message);
+                alert('订单提交失败：' + error.message);
+                document.querySelector('#my-order').innerHTML = '<li class="list-group-item">订单提交失败：' + error.message + '</li>';
+              }
+            });
+          } else {
+            console.error('Submit order button not found!');
+          }
         });
       }
 
